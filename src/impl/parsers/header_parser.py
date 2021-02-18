@@ -31,6 +31,7 @@ class HeaderParser(parser_base.ParserBase):
         :param str md_string: An unprocessed markdown node
 
         :return: a string formatted as html
+        :rtype: str
         """
         try:
             result = cls.checker.match(md_string)

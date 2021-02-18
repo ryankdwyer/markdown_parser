@@ -65,3 +65,11 @@ class TestHeaderParser(unittest.TestCase):
         output = HeaderParser.parse(test_case)
 
         self.assertEqual(expected, output)
+
+    def test_empty_input(self):
+        """Tests an empty string input."""
+        test_case = ''
+        expected = ''
+        output = HeaderParser.parse(test_case)
+
+        self.assertEqual(expected, output)

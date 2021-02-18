@@ -13,7 +13,7 @@ class LinkParser(parser_base.ParserBase):
     Example Output: <a href="http://google.com">with an inline link</a>
     """
 
-    checker = re.compile('(\[(.*)\]\((.*)\))')
+    checker = re.compile('(\[(.*?)\]\((.*?)\))')
     html_mask = '<a href="{link}">{text}</a>'.format
 
     @classmethod
@@ -26,6 +26,7 @@ class LinkParser(parser_base.ParserBase):
         :param str md_string: An unprocessed markdown node
 
         :return: a string formatted as html
+        :rtype: str
         """
         try:
             return re.sub(cls.checker, cls.replacer, md_string)

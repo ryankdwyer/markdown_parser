@@ -38,3 +38,25 @@ class TestLinkParser(unittest.TestCase):
         result = LinkParser.parse(test_case)
 
         self.assertEqual(expected, result)
+
+    def test_no_match(self):
+        """Tests no match case."""
+        test_case = 'This is not a link'
+        expected = test_case
+        result = LinkParser.parse(test_case)
+
+        self.assertEqual(expected, result)
+
+    def test_invalid_input(self):
+        """Tests invalid input case."""
+        test_case = {'Cannot parse': 'This'}
+        with self.assertRaises(exceptions.InvalidInputType):
+            LinkParser.parse(test_case)
+
+    def test_empty_input(self):
+        """Tests an empty string input."""
+        test_case = ''
+        expected = ''
+        output = LinkParser.parse(test_case)
+
+        self.assertEqual(expected, output)
