@@ -14,13 +14,18 @@ class TestMarkdown(unittest.TestCase):
 
     def setUp(self):
         """setUp method run before each test case."""
-        with open('./samples/simple_sample.md', 'r') as md_file:
-            self.simple_file = md_file.read()
+        self.simple_file = \
+            "# Sample Document\n\n" \
+            "Hello!\n\n" \
+            "This is sample markdown for the [Mailchimp](" \
+            "https://www.mailchimp.com) homework assignment."
 
-        with open('./samples/simple_output.html', 'r') as html_file:
-            self.simple_output = html_file.read()
-
-        self.simple_output = self.simple_output.strip()
+        self.simple_output = \
+            '<h1>Sample Document</h1>\n\n' \
+            '<p>Hello!</p>\n\n' \
+            '<p>This is sample markdown for the <a ' \
+            'href="https://www.mailchimp.com">Mailchimp</a> homework ' \
+            'assignment.</p>'
 
     def test_simple_parse(self):
         """Tests a simple parse case."""
@@ -32,7 +37,6 @@ class TestMarkdown(unittest.TestCase):
         """Test passing bad inputs on __init__."""
         with self.assertRaises(exceptions.MarkdownParserException):
             MarkdownParser(post_processors=['TEST'])
-
 
     @mock.patch.object(MarkdownParser, 'write_to_html')
     def test_write_to_html_is_called(self, mock_writer):
