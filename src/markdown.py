@@ -9,6 +9,16 @@ import src.impl.pre_processors.processors as pre_processors
 import src.impl.post_processors.post_processor_base as post_processor_base
 
 # Aliases
+
+# Parsers
+HeaderParser = parsers.HeaderParser
+LinkParser = parsers.LinkParser
+ParagraphParser = parsers.ParagraphParser
+
+# Processors
+NewlineProcessor = pre_processors.NewlineProcessor
+
+# Bases for validation
 ParserBase = parsers.ParserBase
 PreProcessorBase = pre_processors.PreProcessorBase
 PostProcessorBase = post_processor_base.PostProcessorBase
@@ -23,18 +33,19 @@ class MarkdownParser:
     """Parses text formatted as in markdown and outputs html.
 
     :cvar list[PreProcessors] pre_processors: A list of PreProcessor class
-    instances that handle all text munging prior to parsing.
+        instances that handle all text munging prior to parsing.
     :cvar list[Parsers] parsers: A list of Parser class instances that handle
-    all parsing of markdown elements to html.
+        all parsing of markdown elements to html.
     :cvar list[PostProcessors] post_processors: A list of PostProcessor class
-    instances that handle all post processing of generated html.
+        instances that handle all post processing of generated html.
     """
 
-    pre_processors = []
-    parsers = []
+    # We preload these with the defaults
+    pre_processors = [NewlineProcessor]
+    parsers = [LinkParser, ParagraphParser, HeaderParser]
     post_processors = []
 
-    def __init__(self, pre_processors, parsers, post_processors):
+    def __init__(self, pre_processors=None, parsers=None, post_processors=None):
         """Initializer method.
 
         :param list[PreProcessors] pre_processors: A list of PreProcessor class
@@ -70,8 +81,7 @@ class MarkdownParser:
         :raises: InvalidClass
         """
         if not instances:
-            msg = f'You must provide at least one instance of {repr(base)}.'
-            raise exceptions.MarkdownParserException(msg)
+            return
 
         for instance in instances:
             if not isinstance(instance, base):
@@ -88,6 +98,9 @@ class MarkdownParser:
         for parsing.
         :rtype: list[str]
         """
+        # We will strip leading and trailing white space first.
+        md_copy = md_copy.strip()
+
         for preprocessor in self.pre_processors:
             md_copy = preprocessor.run(md_copy)
 
@@ -117,7 +130,9 @@ class MarkdownParser:
         for postprocessor in self.post_processors:
             parsed_list = [postprocessor.run(line) for line in parsed_list]
 
-        return ''.join(parsed_list)
+        # Stripping each line is not strictly necessary - but makes the output
+        # much more readable.
+        return SPLIT_TOKEN.join([line.strip() for line  in parsed_list])
 
     def write_to_html(self, processed, filename):
         """Writes the processed html string to a file.
@@ -128,11 +143,13 @@ class MarkdownParser:
         with open(filename, 'w') as file_handler:
             file_handler.write(processed)
 
-    def parse(self, markdown, output_name):
+    def parse(self, markdown, output_name=None):
         """Parses the markdown input and outputs an html file.
 
         :param str markdown: A markdown formatted string.
         :param str output_name: The name of the html file to output.
+
+        :return
         """
         # We may end up mutating/overwriting some parts, best to keep the
         # original intact.
@@ -142,4 +159,7 @@ class MarkdownParser:
         parsed_list = self.apply_parsers(md_list)
         processed = self.postprocess(parsed_list)
 
-        self.write_to_html(processed, output_name)
+        if output_name:
+            self.write_to_html(processed, output_name)
+        else:
+            return processed

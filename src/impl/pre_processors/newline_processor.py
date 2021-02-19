@@ -39,6 +39,7 @@ class NewlineProcessor(base.PreProcessorBase):
         :return: A str with normalized newline characters.
         """
         try:
+            # Removes and normalizes whitespace in the middle of the string.
             result = re.sub(cls.checker, cls.replacement, md_string)
         except TypeError:
             msg = f'Cannot parse an input of type: {type(md_string)}'
