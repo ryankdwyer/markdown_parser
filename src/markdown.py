@@ -4,13 +4,13 @@ import copy
 import logging
 
 import src.exceptions as exceptions
-import src.impl.parsers.parser_base as parser_base
-import src.impl.pre_processors.pre_processor_base as pre_processor_base
+import src.impl.parsers.parsers as parsers
+import src.impl.pre_processors.processors as pre_processors
 import src.impl.post_processors.post_processor_base as post_processor_base
 
 # Aliases
-ParserBase = parser_base.ParserBase
-PreProcessorBase = pre_processor_base.PreProcessorBase
+ParserBase = parsers.ParserBase
+PreProcessorBase = pre_processors.PreProcessorBase
 PostProcessorBase = post_processor_base.PostProcessorBase
 
 # Constants

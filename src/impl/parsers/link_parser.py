@@ -44,5 +44,4 @@ class LinkParser(parser_base.ParserBase):
         :return: An html formatted string representing a link.
         :rtype: str
         """
-        print(match.group(0))
         return cls.html_mask(link=match.group(3), text=match.group(2))
