@@ -1,6 +1,5 @@
 """Main class for parsing markdown to html."""
 
-import copy
 import logging
 
 import src.exceptions as exceptions
@@ -30,7 +29,7 @@ logger = logging.getLogger(__name__)
 
 
 class MarkdownParser:
-    """Parses text formatted as in markdown and outputs html.
+    """Parses text formatted in markdown and outputs html.
 
     :cvar list[PreProcessors] pre_processors: A list of PreProcessor class
         instances that handle all text munging prior to parsing.
@@ -43,6 +42,7 @@ class MarkdownParser:
     # We preload these with the defaults
     pre_processors = [NewlineProcessor]
     parsers = [LinkParser, ParagraphParser, HeaderParser]
+    # Not currently used, but could be useful in the future.
     post_processors = []
 
     def __init__(self, pre_processors=None, parsers=None, post_processors=None):
@@ -89,22 +89,22 @@ class MarkdownParser:
                 raise exceptions.MarkdownParserException(msg)
             registry.append(instance)
 
-    def preprocess(self, md_copy):
+    def preprocess(self, md_string):
         """Applies each registered preprocessor.
 
-        :param str md_copy: An unprocessed markdown string.
+        :param str md_string: An unprocessed markdown string.
 
         :return: A list of strings representing the lines of the markdown, ready
         for parsing.
         :rtype: list[str]
         """
         # We will strip leading and trailing white space first.
-        md_copy = md_copy.strip()
+        md_string = md_string.strip()
 
         for preprocessor in self.pre_processors:
-            md_copy = preprocessor.run(md_copy)
+            md_string = preprocessor.run(md_string)
 
-        return md_copy.split(SPLIT_TOKEN)
+        return md_string.split(SPLIT_TOKEN)
 
     def apply_parsers(self, md_list):
         """Applies each registered parser.
@@ -114,8 +114,11 @@ class MarkdownParser:
         :return: A list of html formatted strings
         :rtype: list[str]
         """
-        for parser in self.parsers:
-            md_list = [parser.parse(line) for line in md_list]
+        for i in range(len(md_list)):
+            line = md_list[i]
+            for parser in self.parsers:
+                line = parser.parse(line)
+            md_list[i] = line
 
         return md_list
 
@@ -127,12 +130,15 @@ class MarkdownParser:
         :return: A string representing the html output of the original markdown
         :rtype: str
         """
-        for postprocessor in self.post_processors:
-            parsed_list = [postprocessor.run(line) for line in parsed_list]
+        for i in range(len(parsed_list)):
+            line = parsed_list[i]
+            for postprocessor in self.post_processors:
+                postprocessor.run(line)
+            parsed_list[i] = line
 
         # Stripping each line is not strictly necessary - but makes the output
         # much more readable.
-        return SPLIT_TOKEN.join([line.strip() for line  in parsed_list])
+        return SPLIT_TOKEN.join((line.strip() for line in parsed_list))
 
     def write_to_html(self, processed, filename):
         """Writes the processed html string to a file.
@@ -149,16 +155,15 @@ class MarkdownParser:
         :param str markdown: A markdown formatted string.
         :param str output_name: The name of the html file to output.
 
-        :return
+        :return: An html formatted string, or we write to a file output_name
+        :rtype: str|None
         """
-        # We may end up mutating/overwriting some parts, best to keep the
-        # original intact.
-        md_copy = copy.copy(markdown)
-
-        md_list = self.preprocess(md_copy)
+        md_list = self.preprocess(markdown)
         parsed_list = self.apply_parsers(md_list)
         processed = self.postprocess(parsed_list)
 
+        # Making the output file optional gives us the ability to take the
+        # results and use them elsewhere.
         if output_name:
             self.write_to_html(processed, output_name)
         else:

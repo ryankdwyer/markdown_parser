@@ -10,7 +10,7 @@ if __name__ == '__main__':
         'This is a paragraph [with an inline link](http://google.com). Neat, eh?\n\n',
         "How are you?\nWhat's going on?\n\n",
         '\n\n\n',
-        '# Big Title'
+        '# Big Title\n\n'
     ]
 
     with open('./test_file.md', 'w') as f:

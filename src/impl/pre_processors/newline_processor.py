@@ -27,7 +27,7 @@ class NewlineProcessor(base.PreProcessorBase):
     """
 
     # We check for cases where 3 or more newlines are used.
-    checker = re.compile('(\n{3,})$')
+    checker = re.compile('(\n{3,})')
     replacement = '\n\n'
 
     @classmethod
@@ -39,10 +39,7 @@ class NewlineProcessor(base.PreProcessorBase):
         :return: A str with normalized newline characters.
         """
         try:
-            # Removes and normalizes whitespace in the middle of the string.
-            result = re.sub(cls.checker, cls.replacement, md_string)
+            return re.sub(cls.checker, cls.replacement, md_string)
         except TypeError:
             msg = f'Cannot parse an input of type: {type(md_string)}'
             raise exceptions.InvalidInputType(msg)
-
-        return result
